@@ -1,6 +1,6 @@
 import socket
 
-server_address = ('192.168.8.134', 8001)  # Dirección IP y puerto del server
+server_address = ('10.210.86.206', 8001)  # Dirección IP y puerto del server
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # crea el socket 
 
 try:   

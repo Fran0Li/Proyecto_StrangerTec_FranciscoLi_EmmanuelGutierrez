@@ -7,8 +7,14 @@ import time # Añadido para manejo de tiempos precisos del botón
 # 1. CONFIGURACIÓN DE HARDWARE (PINES)
 
 # Configuración de los registros de corrimiento 
-AB = machine.Pin(14, machine.Pin.OUT)
-CLK = machine.Pin(15, machine.Pin.OUT)
+AB = machine.Pin(14, machine.Pin.OUT)#GPIO 14
+CLK = machine.Pin(15, machine.Pin.OUT)#GPIO 15
+
+# LEDs de Filas (LED 14 al 16, conectados a la raspy)
+# Se activan con 0 (Tierra) y se apagan con 1
+led14 = machine.Pin(13, machine.Pin.OUT) # GPIO 13
+led15 = machine.Pin(12, machine.Pin.OUT) # GPIO 12
+led16 = machine.Pin(11, machine.Pin.OUT) # GPIO 11
 
 # Configuración del Botón (Pin 16) y Buzzer (Pin 17)
 # Se usa PULL_DOWN como requiere el diagrama de la maqueta
@@ -16,7 +22,51 @@ boton = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_DOWN)
 buzzer = machine.PWM(machine.Pin(17))
 
 
-# 2. FUNCIONES RASPYCONNECTION
+#Diccionarios de traducción
+#Traductor de Morse a texto
+MORSE_DICC = {
+    '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', 
+    '..-.': 'F', '--.': 'G', '....': 'H', '..': 'I', '.---': 'J', 
+    '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O', 
+    '.--.': 'P', '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T', 
+    '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X', '-.--': 'Y', 
+    '--..': 'Z', '.----': '1', '..---': '2', '...--': '3', '....-': '4', 
+    '.....': '5', '-....': '6', '--...': '7', '---..': '8', '----.': '9', 
+    '-----': '0', '.-.-.': '+', 
+    '-....-': '-'}
+#Patron en la maqueta
+#La letrac(bits del registo, led14, led15, led 16) es decir, las filas
+PATRONES_LEDMAQUE = { 'A': ('1000000000000000', 1, 0, 0),
+    'B': ('0100000000000000', 1, 0, 0),
+    'C': ('0010000000000000', 1, 0, 0),
+    'D': ('0001000000000000', 1, 0, 0),
+    'E': ('0000100000000000', 1, 0, 0),
+    'F': ('0000010000000000', 1, 0, 0),
+    'G': ('0000001000000000', 1, 0, 0),
+    'H': ('0000000100000000', 1, 0, 0),
+    'I': ('0000000010000000', 1, 0, 0),
+    'J': ('0000000001000000', 1, 0, 0),
+    'K': ('0000000000100000', 1, 0, 0),
+    'L': ('0000000000010000', 1, 0, 0),
+    'M': ('0000000000001000', 1, 0, 0),
+    'N': ('0000000000000100', 0, 1, 0),
+    'O': ('1111111111111111', 1, 1, 1), # Prende todo
+    'P': ('0000000000000010', 0, 1, 0),
+    'Q': ('0000000000000001', 0, 1, 0),
+    'R': ('1100000000000000', 0, 1, 0),
+    'S': ('0011000000000000', 0, 1, 0),
+    'T': ('0000110000000000', 0, 1, 0),
+    'U': ('0000001100000000', 0, 1, 0),
+    'V': ('0000000011000000', 0, 0, 1),
+    'W': ('0000000000110000', 0, 0, 1),
+    'X': ('0000000000001100', 0, 0, 1),
+    'Y': ('0000000000000011', 0, 0, 1),
+    'Z': ('1010101010101010', 0, 0, 1),
+    '+': ('0000111110000000', 0, 1, 0),
+    '-': ('1111111111111111', 0, 0, 0) }
+
+
+# FUNCIONES RASPYCONNECTION
 
 ssid = "FranLi"  #nombre de la red
 password = "RackitiLi081029" #contraseña de la red
@@ -63,7 +113,7 @@ def iniciar_sistema():
     connectToWifi()
     
     # 2. Configuración del servidor (IP de tu ServerR.py en Visual Studio)
-    server_address = ('192.168.8.134', 8001) 
+    server_address = ('10.210.86.206', 8001) 
     
     try:
         # Creamos el socket una sola vez para mantener la conexión abierta
