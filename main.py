@@ -85,17 +85,20 @@ def connectToWifi():
         print('Algo salio mal. Intente nuevamente')
 
 # 3. FUNCIONES DE APOYO (LEDs y SONIDO)
-
-def EjecutarSecuencia(secuencia):
-    """
-    Función de prueba1.py integrada para los LEDs.
-    Recibe una lista de 8 bits.
-    """
-    for i in range(8):
-        bit = secuencia[7-i]
-        AB.value(bit) # Usamos .value() para asignar el bit
-        CLK.value(1)
-        CLK.value(0)
+def actualizar_maqueta(letra):
+    """Esta función 'salta' aquí cuando hay una letra lista"""
+    if letra in PATRONES_LEDMAQUE:
+        bits_reg, l14, l15, l16 = PATRONES_LEDMAQUE[letra]
+        #Enviar los 16 bits
+        for bit in reversed(bits_reg):
+            AB.value(int(bit))
+            CLK.value(1)
+            CLK.value(0)
+        
+        # Prender/Apagar los LEDs de la Raspy (0=prende, 1=apaga)
+        led14.value(0 if l14 == 1 else 1)
+        led15.value(0 if l15 == 1 else 1)
+        led16.value(0 if l16 == 1 else 1)
 
 def sonar_buzzer(estado):
     """Hace sonar el buzzer a 1kHz cuando el estado es True"""
@@ -105,14 +108,14 @@ def sonar_buzzer(estado):
     else:
         buzzer.duty_u16(0)
 
-# 4. LÓGICA INTEGRADA (BOTÓN + CLIENTE)
+# 4. LÓGICA PRINCIPAL (BOTÓN + CLIENTE)
 
 
 def iniciar_sistema():
     # 1. Conectar a la red
     connectToWifi()
     
-    # 2. Configuración del servidor (IP de tu ServerR.py en Visual Studio)
+    # 2. Configuración del servidor (IP de ServerR.py en Visual)
     server_address = ('10.210.86.206', 8001) 
     
     try:
@@ -122,10 +125,8 @@ def iniciar_sistema():
         client_socket.connect(server_address)
         print("Conectado al servidor en Visual Studio")
 
-        # Limpiar LEDs al iniciar (secuencia de ceros)
-        EjecutarSecuencia([0,0,0,0,0,0,0,0])
-
         codigo_acumulado = "" # Aquí guardamos los . y -
+        last_time = time.ticks_ms()
         
         print("Esperando entrada Morse (Botón)...")
         
@@ -153,12 +154,17 @@ def iniciar_sistema():
 
                 # Enviar el símbolo inmediatamente al servidor
                 client_socket.sendall(simbolo.encode())
+                last_time = time.ticks_ms() #Reinicia el tiempo de espera
+            if codigo_acumulado != "" and time.ticks_diff(time.ticks_ms(), last_time) > 1500:
+                letra = MORSE_DICC.get(codigo_acumulado, "?")
+                print("Letra detectada:", letra)
                 
-                # Opcional: Mostrar algo en los LEDs al presionar
-                EjecutarSecuencia([1,1,1,1,1,1,1,1]) # Prende todos momentáneamente
-                sleep(0.1)
-                EjecutarSecuencia([0,0,0,0,0,0,0,0]) # Apaga
-
+                actualizar_maqueta(letra) #Va a  la maqueta(leds)
+                client_socket.sendall(f"[{letra}]".endcode())
+                codigo_acumulado = "" #Se limpia para siguiente letra
+                
+            sleep(0.01)
+    
     except Exception as e:
         print("Error en el sistema:", e)
     finally:
