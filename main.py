@@ -117,10 +117,10 @@ def actualizar_maqueta(letra):
 def sonar_buzzer(estado):
     """Hace sonar el buzzer a 1kHz cuando el estado es True"""
     if estado:
-        buzzer.freq(1000)
-        buzzer.duty_u16(32768) # 50% de ciclo de trabajo (volumen)
+        buzzer.freq(1000) # establece el tono, este es el estandar del morse
+        buzzer.duty_u16(32768) # 50% de potencia de volumen
     else:
-        buzzer.duty_u16(0)
+        buzzer.duty_u16(0) # apaga el sonido
 
 # FUNCIONES RASPYCONNECTION
 
@@ -130,10 +130,10 @@ password = "RackitiLi081029" #contraseña de la red
 def connectToWifi():
     try:
         wlan = network.WLAN(network.STA_IF) #crea la interfaz para la conexión
-        wlan.active(True)
-        wlan.connect(ssid, password) 
+        wlan.active(True) #wnciende antena
+        wlan.connect(ssid, password) #intenta conexión
         while wlan.isconnected() == False: 
-            print('Esperando la conexion...')
+            print('Esperando la conexion...')#espera activa hasta confirmas conexion
             sleep(1)
         picoIp = wlan.ifconfig()[0] #obtiene la ip asignada a la raspy
         print('Conectado exitosamente a la ip: ' + str(picoIp))
@@ -144,10 +144,10 @@ def connectToWifi():
 
 # 4. LÓGICA PRINCIPAL (BOTÓN + CLIENTE)
 
-def animacion_deinicio():
+def animacion_deinicio():#Parpadeo de bienvenida al juego
     print("Ejecutando animación de inicio...")
     for _ in range(3): # Parpadea 3 veces
-        # Prender todo (13 registros en 1, 3 filas en 0 para que brillen)
+        # Prender todo 
         actualizar_maqueta('O') 
         sleep(0.3)
         # Apagar todo (Usando una letra que no exista para que el else apague todo)
@@ -169,25 +169,25 @@ def iniciar_sistema():
         
         #Llamada a la animación de inicio()
         animacion_deinicio()
-        print("Maqueta preparada, esperando Stranger Morse!
+        print("Maqueta preparada, esperando Stranger Morse!)
         
         codigo_acumulado = "" # Aquí guardamos los . y -
-        last_time = time.ticks_ms()
+        last_time = time.ticks_ms()# registra tiempo de la ultima actividad
         
         print("Esperando entrada Morse (Botón)...")
         
         while True:
             # Detección del botón
-            if boton.value() == 1:
-                inicio_pulso = time.ticks_ms()
-                sonar_buzzer(True)
+            if boton.value() == 1:# si el botón esta presionado
+                inicio_pulso = time.ticks_ms()#marca el inicio del pulso
+                sonar_buzzer(True)# suena el buzzer mientras se presiona
                 
                 # Bucle mientras el botón está hundido
                 while boton.value() == 1:
                     pass
                 
-                duracion = time.ticks_diff(time.ticks_ms(), inicio_pulso)
-                sonar_buzzer(False)
+                duracion = time.ticks_diff(time.ticks_ms(), inicio_pulso)# calcula cuanto duro presionado
+                sonar_buzzer(False)#apaga el sonido del buzzer
 
                 # Clasificación de pulsos
                 if duracion < 300: # Menos de 0.3s es punto
@@ -201,6 +201,8 @@ def iniciar_sistema():
                 # Enviar el símbolo inmediatamente al servidor
                 client_socket.sendall(simbolo.encode())
                 last_time = time.ticks_ms() #Reinicia el tiempo de espera
+                
+                #Traducción por tiempo y silencio
             if codigo_acumulado != "" and time.ticks_diff(time.ticks_ms(), last_time) > 1500:#Si el código acumulado no está vacío y han pasado 1.5 segundos, desde la ultima presion al boton se traduce
                 letra = MORSE_DICC.get(codigo_acumulado, "?")#Busca el código en el dicc, si no existe, devuelve un "?" para que no haya crash
                 print("Letra detectada:", letra)#Muestra la letra en la consola de Thonny
@@ -209,12 +211,12 @@ def iniciar_sistema():
                 client_socket.sendall(f"[{letra}]".encode())#envía letra entre llaves al server
                 codigo_acumulado = "" #Se limpia la variable para escribir la siguiente letra
                 
-            sleep(0.01)
+            sleep(0.01)# pausa minima para estabilidad
     
     except Exception as e:
-        print("Error en el sistema:", e)
+        print("Error en el sistema:", e)# si hay error de red
     finally:
-        if 'client_socket' in locals():
+        if 'client_socket' in locals():#hace que el socket se cierre bien si el programa se detiene
             client_socket.close()
             print("Conexión cerrada.")
 
