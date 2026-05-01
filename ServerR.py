@@ -9,7 +9,8 @@ try:
     print("Servidor iniciado. Escuchando en {}:{}".format(*server_address))
 
 except OSError as e:
-    print("Error al iniciar el servidor:", e)
+    print("Error al iniciar el servidor:" \
+           "", e)
     exit()
 
 def handle_connection(client_socket): # Acá se maneja la conexión ya establecida

@@ -6,20 +6,26 @@ import time # Añadido para manejo de tiempos precisos del botón
 
 # 1. CONFIGURACIÓN DE HARDWARE (PINES)
 
-# Configuración de los registros de corrimiento 
-AB = machine.Pin(14, machine.Pin.OUT)#GPIO 14
-CLK = machine.Pin(15, machine.Pin.OUT)#GPIO 15
+# Configuración de los registros de corrimiento
+#Primer registro (columnas 1-4, 6-8 y el pin 10 muerto)
+AB = machine.Pin(17, machine.Pin.OUT)#data va al pin 17 de la raspy
+CLK = machine.Pin(18, machine.Pin.OUT)#clock va al pin 18 de la raspy
+#Segundo registro(columnas 5, 9-13, pines 3 y 10 muertos)
+#la data va al pin 20 de la raspy
+AB2 =machine.Pin(20,machine.Pin.OUT)#el led de la columna 5 esta en este registro en el pin 13 y el led de la columna 9 está en el pin 12 de este registro 
+CLK2 = machine.Pin(19, machine.Pin.OUT)#clock va al pin 19 de la raspy
 
 # LEDs de Filas (LED 14 al 16, conectados a la raspy)
 # Se activan con 0 (Tierra) y se apagan con 1
-led14 = machine.Pin(13, machine.Pin.OUT) # GPIO 13
-led15 = machine.Pin(12, machine.Pin.OUT) # GPIO 12
-led16 = machine.Pin(11, machine.Pin.OUT) # GPIO 11
+#Filas de la maqueta
+led14 = machine.Pin(15, machine.Pin.OUT) # GPIO 15
+led15 = machine.Pin(14, machine.Pin.OUT) # GPIO 14
+led16 = machine.Pin(13, machine.Pin.OUT) # GPIO 13
 
 # Configuración del Botón (Pin 16) y Buzzer (Pin 17)
 # Se usa PULL_DOWN como requiere el diagrama de la maqueta
-boton = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_DOWN)
-buzzer = machine.PWM(machine.Pin(17))
+boton = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_DOWN)#el botón va al pin 16 de la raspy
+buzzer = machine.PWM(machine.Pin(5))#buzzer va al pin 5 de la raspy con PWM
 
 
 #Diccionarios de traducción
@@ -110,7 +116,15 @@ def sonar_buzzer(estado):
 
 # 4. LÓGICA PRINCIPAL (BOTÓN + CLIENTE)
 
-
+def animacion_deinicio():
+    print("Ejecutando animación de inicio...")
+    for _ in range(3): # Parpadea 3 veces
+        # Prender todo (13 registros en 1, 3 filas en 0 para que brillen)
+        actualizar_maqueta('O') 
+        sleep(0.3)
+        # Apagar todo (Usando una letra que no exista para que el else apague todo)
+        actualizar_maqueta('LIMPIAR') 
+        sleep(0.3)
 def iniciar_sistema():
     # 1. Conectar a la red
     connectToWifi()
@@ -124,7 +138,11 @@ def iniciar_sistema():
         print("Creando socket...")
         client_socket.connect(server_address)
         print("Conectado al servidor en Visual Studio")
-
+        
+        #Llamada a la animación de inicio()
+        animacion_deinicio()
+        print("Maqueta preparada, esperando Stranger Morse!
+        
         codigo_acumulado = "" # Aquí guardamos los . y -
         last_time = time.ticks_ms()
         
@@ -155,13 +173,13 @@ def iniciar_sistema():
                 # Enviar el símbolo inmediatamente al servidor
                 client_socket.sendall(simbolo.encode())
                 last_time = time.ticks_ms() #Reinicia el tiempo de espera
-            if codigo_acumulado != "" and time.ticks_diff(time.ticks_ms(), last_time) > 1500:
-                letra = MORSE_DICC.get(codigo_acumulado, "?")
-                print("Letra detectada:", letra)
-                
-                actualizar_maqueta(letra) #Va a  la maqueta(leds)
-                client_socket.sendall(f"[{letra}]".endcode())
-                codigo_acumulado = "" #Se limpia para siguiente letra
+            if codigo_acumulado != "" and time.ticks_diff(time.ticks_ms(), last_time) > 1500:#Si el código acumulado no está vacío y han pasado 1.5 segundos, desde la ultima presion al boton se traduce
+                letra = MORSE_DICC.get(codigo_acumulado, "?")#Busca el código en el dicc, si no existe, devuelve un "?" para que no haya crash
+                print("Letra detectada:", letra)#Muestra la letra en la consola de Thonny
+                #Se llama a la maqueta
+                actualizar_maqueta(letra) #Va a  la maqueta(leds), a la función que apaga/enciende filas
+                client_socket.sendall(f"[{letra}]".encode())#envía letra entre llaves al server
+                codigo_acumulado = "" #Se limpia la variable para escribir la siguiente letra
                 
             sleep(0.01)
     
