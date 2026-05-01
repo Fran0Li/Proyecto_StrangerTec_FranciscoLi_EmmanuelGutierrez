@@ -49,36 +49,55 @@ MORSE_DICC = {
 
 PATRONES_LEDMAQUE = { 
     # Formato: 'LETRA': (Bits_Reg1, Bits_Reg2, Fila1, Fila2, Fila3)
-    'A': ('10000000', '00000001', 1, 0, 0), # Prende C1 y C5
-    'B': ('01000000', '00000000', 1, 0, 0), # C2
-    'C': ('00100000', '00000000', 1, 0, 0), # C3
-    'D': ('00010000', '00000000', 1, 0, 0), # C4
-    'E': ('00000000', '10000000', 1, 0, 0), # C5 (Reg2, Pin 13)
-    'F': ('00000100', '00000000', 1, 0, 0), # C6
-    'G': ('00000010', '00000000', 1, 0, 0), # C7
-    'H': ('00000001', '00000000', 1, 0, 0), # C8
-    'I': ('00000000', '00000100', 1, 0, 0), # C9 (Reg2, Pin 12)
-    'J': ('00000000', '01000000', 1, 0, 0), # C10
-    'K': ('00000000', '00100000', 1, 0, 0), # C11
-    'L': ('00000000', '00010000', 1, 0, 0), # C12
-    'M': ('00000000', '00000100', 1, 0, 0), # C13
-    'N': ('10000000', '00000000', 0, 1, 0), # Ejemplo fila 2
-    'O': ('11110111', '01110111', 1, 1, 1), # TODO lo que funciona prendido
-    'P': ('01000000', '00000000', 0, 1, 0),
-    'Q': ('00100000', '00000000', 0, 1, 0),
-    'R': ('00010000', '00000000', 0, 1, 0),
-    'S': ('00000000', '10000000', 0, 1, 0),
-    'T': ('00000100', '00000000', 0, 1, 0),
-    'U': ('00000010', '00000000', 0, 1, 0),
-    'V': ('00000001', '00000000', 0, 0, 1), # Fila 3
-    'W': ('00000000', '00000100', 0, 0, 1),
-    'X': ('00000000', '01000000', 0, 0, 1),
-    'Y': ('00000000', '00100000', 0, 0, 1),
-    'Z': ('00000000', '00010000', 0, 0, 1),
-    '+': ('11110000', '10000000', 0, 1, 0),
-    '-': ('11110111', '01110111', 0, 0, 0),
-    'LIMPIAR': ('00000000', '00000000', 0, 0, 0)
+    # Recordar: En las filas 0=ON, 1=OFF. 
+    # --- FILA 1 (Letras de arriba) ---
+    'A': ('10000000', '00000000', 0, 1, 1), # C1
+    'C': ('01000000', '00000000', 0, 1, 1), # C2
+    'E': ('00000000', '00000001', 0, 1, 1), # C5 (Reg2 Pin 13)
+    'G': ('00010000', '00000000', 0, 1, 1), # C4
+    'I': ('00000000', '00000010', 0, 1, 1), # C9 (Reg2 Pin 12)
+    'K': ('00000000', '00100000', 0, 1, 1), # C11 (Reg2 Pin 14)
+    'M': ('00000000', '00000100', 0, 1, 1), # C13 (Reg2 Pin 11)
+    'O': ('00000001', '00000000', 0, 1, 1), # C8
+    'Q': ('00000000', '00000100', 0, 1, 1), # C13 (Ajustar según cableado real)
+    'S': ('00000000', '01000000', 0, 1, 1), # C10 (Reg2 Pin 6)
+    'U': ('00000000', '00100000', 0, 1, 1), # C11
+    'W': ('00000000', '00010000', 0, 1, 1), # C12 (Reg2 Pin 7)
+    'Y': ('00000000', '00000100', 0, 1, 1), # C13
+
+    # --- FILA 2 (Letras del medio) ---
+    'B': ('10000000', '00000000', 1, 0, 1), # C1
+    'D': ('01000000', '00000000', 1, 0, 1), # C2
+    'F': ('00000100', '00000000', 1, 0, 1), # C6 (Salto el Pin 10 muerto)
+    'H': ('00000001', '00000000', 1, 0, 1), # C8
+    'J': ('00000000', '01000000', 1, 0, 1), # C10
+    'L': ('00000000', '00010000', 1, 0, 1), # C12
+    'N': ('00000010', '00000000', 1, 0, 1), # C7
+    'P': ('00000001', '00000000', 1, 0, 1), # C8
+    'R': ('00000000', '00000100', 1, 0, 1), # C9
+    'T': ('00000000', '01000000', 1, 0, 1), # C10
+    'V': ('00000000', '00100000', 1, 0, 1), # C11
+    'X': ('00000000', '00010000', 1, 0, 1), # C12
+    'Z': ('00000000', '00000100', 1, 0, 1), # C13
+
+    # --- FILA 3 (Números y Símbolos) ---
+    '0': ('10000000', '00000000', 1, 1, 0), # C1
+    '1': ('01000000', '00000000', 1, 1, 0), # C2
+    '2': ('00100000', '00000000', 1, 1, 0), # C3
+    '3': ('00010000', '00000000', 1, 1, 0), # C4
+    '4': ('00000000', '00000001', 1, 1, 0), # C5
+    '5': ('00000100', '00000000', 1, 1, 0), # C6
+    '6': ('00000010', '00000000', 1, 1, 0), # C7
+    '7': ('00000001', '00000000', 1, 1, 0), # C8
+    '8': ('00000000', '00000010', 1, 1, 0), # C9
+    '9': ('00000000', '01000000', 1, 1, 0), # C10
+    '-': ('00000000', '00100000', 1, 1, 0), # C11
+    '+': ('00000000', '00010000', 1, 1, 0), # C12
+
+    'LIMPIAR': ('00000000', '00000000', 1, 1, 1),
+    'O_ANM': ('11111111', '11111111', 0, 0, 0) # Para la animación de inicio
 }
+
 
 # FUNCIONES DE APOYO (LEDs y SONIDO)
 def actualizar_maqueta(letra):
@@ -101,9 +120,9 @@ def actualizar_maqueta(letra):
         #Control de las Filas
         #Leds de filas encienden con un 0 (tierra)
         #Si el dicc dice 1 (encender), se manda un 0 al pin
-        led14.value(0 if l1 == 1 else 1) # Fila 1 (GP15)
-        led15.value(0 if l2 == 1 else 1) # Fila 2 (GP14)
-        led16.value(0 if l3 == 1 else 1) # Fila 3 (GP13)
+        led14.value(l1) # Fila 1 (GP15)
+        led15.value(l2) # Fila 2 (GP14)
+        led16.value(l3) # Fila 3 (GP13)
     else:
         #si la letra no existe: se limpia la maqueta
         # se envian los 8 ceros a los dos registros
@@ -148,7 +167,7 @@ def animacion_deinicio():#Parpadeo de bienvenida al juego
     print("Ejecutando animación de inicio...")
     for _ in range(3): # Parpadea 3 veces
         # Prender todo 
-        actualizar_maqueta('O') 
+        actualizar_maqueta('O_ANM') 
         sleep(0.3)
         # Apagar todo (Usando una letra que no exista para que el else apague todo)
         actualizar_maqueta('LIMPIAR') 
@@ -173,7 +192,7 @@ def iniciar_sistema():
         
         codigo_acumulado = "" # Aquí guardamos los . y -
         last_time = time.ticks_ms()# registra tiempo de la ultima actividad
-        
+        espacio_enviado = False
         print("Esperando entrada Morse (Botón)...")
         
         while True:
@@ -201,16 +220,23 @@ def iniciar_sistema():
                 # Enviar el símbolo inmediatamente al servidor
                 client_socket.sendall(simbolo.encode())
                 last_time = time.ticks_ms() #Reinicia el tiempo de espera
+                espacio_enviado = False
                 
                 #Traducción por tiempo y silencio
-            if codigo_acumulado != "" and time.ticks_diff(time.ticks_ms(), last_time) > 1500:#Si el código acumulado no está vacío y han pasado 1.5 segundos, desde la ultima presion al boton se traduce
+            time_out = time.ticks_diff(time.ticks_ms(), last_time)
+            if codigo_acumulado != "" and time_out > 1500:#Si el código acumulado no está vacío y han pasado 1.5 segundos, desde la ultima presion al boton se traduce
                 letra = MORSE_DICC.get(codigo_acumulado, "?")#Busca el código en el dicc, si no existe, devuelve un "?" para que no haya crash
                 print("Letra detectada:", letra)#Muestra la letra en la consola de Thonny
                 #Se llama a la maqueta
                 actualizar_maqueta(letra) #Va a  la maqueta(leds), a la función que apaga/enciende filas
                 client_socket.sendall(f"[{letra}]".encode())#envía letra entre llaves al server
                 codigo_acumulado = "" #Se limpia la variable para escribir la siguiente letra
-                
+            #Silencio de 3s es un espacio/ final de palabra
+            if time_out > 3000 and not espacio_enviado:
+                    print("-Espacio-")
+                    client_socket.sendall(" ".encode())
+                    actualizar_maqueta('LIMPIAR')
+                    espacio_enviado = True
             sleep(0.01)# pausa minima para estabilidad
     
     except Exception as e:
