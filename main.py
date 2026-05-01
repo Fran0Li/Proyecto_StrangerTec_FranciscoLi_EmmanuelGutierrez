@@ -172,6 +172,10 @@ def animacion_deinicio():#Parpadeo de bienvenida al juego
         # Apagar todo (Usando una letra que no exista para que el else apague todo)
         actualizar_maqueta('LIMPIAR') 
         sleep(0.3)
+    #para que el conteo empiece en 0
+    last_time = time.ticks_ms()
+    codigo_acumulado = ""
+    espacio_enviado = True# para que no mande espacio hasta escribir algo
 def iniciar_sistema():
     # 1. Conectar a la red
     connectToWifi()
@@ -191,8 +195,9 @@ def iniciar_sistema():
         print("Maqueta preparada, esperando Stranger Morse!")
         
         codigo_acumulado = "" # Aquí guardamos los . y -
+        #Resetear last_time antes del bucle
         last_time = time.ticks_ms()# registra tiempo de la ultima actividad
-        espacio_enviado = False
+        espacio_enviado = True
         print("Esperando entrada Morse (Botón)...")
         
         while True:
@@ -200,6 +205,7 @@ def iniciar_sistema():
             if boton.value() == 1:# si el botón esta presionado
                 inicio_pulso = time.ticks_ms()#marca el inicio del pulso
                 sonar_buzzer(True)# suena el buzzer mientras se presiona
+                sleep(0.05)
                 
                 # Bucle mientras el botón está hundido
                 while boton.value() == 1:
@@ -233,10 +239,11 @@ def iniciar_sistema():
                 codigo_acumulado = "" #Se limpia la variable para escribir la siguiente letra
             #Silencio de 3s es un espacio/ final de palabra
             if time_out > 3000 and not espacio_enviado:
-                    print("-Espacio-")
-                    client_socket.sendall(" ".encode())
-                    actualizar_maqueta('LIMPIAR')
-                    espacio_enviado = True
+                print("-Espacio-")
+                client_socket.sendall(" ".encode())
+                actualizar_maqueta('LIMPIAR')
+                espacio_enviado = True
+               
             sleep(0.01)# pausa minima para estabilidad
     
     except Exception as e:
