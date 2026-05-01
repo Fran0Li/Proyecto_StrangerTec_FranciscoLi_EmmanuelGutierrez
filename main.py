@@ -18,9 +18,9 @@ CLK2 = machine.Pin(19, machine.Pin.OUT)#clock va al pin 19 de la raspy
 # LEDs de Filas (LED 14 al 16, conectados a la raspy)
 # Se activan con 0 (Tierra) y se apagan con 1
 #Filas de la maqueta
-led14 = machine.Pin(15, machine.Pin.OUT) # GPIO 15
-led15 = machine.Pin(14, machine.Pin.OUT) # GPIO 14
-led16 = machine.Pin(13, machine.Pin.OUT) # GPIO 13
+led14 = machine.Pin(15, machine.Pin.OUT) # GPIO 15, fila 1
+led15 = machine.Pin(14, machine.Pin.OUT) # GPIO 14, fila 2
+led16 = machine.Pin(13, machine.Pin.OUT) # GPIO 13, fila 3
 
 # Configuración del Botón (Pin 16) y Buzzer (Pin 17)
 # Se usa PULL_DOWN como requiere el diagrama de la maqueta
@@ -88,12 +88,12 @@ def actualizar_maqueta(letra):
         #Registro 1 (leds de las columnas 1-8 excluyendo la 5)
         #Se recorre la cadena de texto de bits de izquierda a derecha
         for bit in reg1_bits: 
-            AB1.value(int(bit))     # Pone el valor del bit (0 o 1) en el pin de datos
-            CLK1.value(1)           # Genera un pulso de reloj (flanco de subida)
-            CLK1.value(0)           # Baja el reloj para preparar el siguiente bit
+            AB.value(int(bit))     # Pone el valor del bit (0 o 1) en el pin de datos
+            CLK.value(1)           # Genera un pulso de reloj (flanco de subida)
+            CLK.value(0)           # Baja el reloj para preparar el siguiente bit
         #Registro 2 (Columnas 5 y 9-13, la nueve al pin 12 y la 5 al pin 13)
         #Se repite la lógica del primero
-            for bit in reg2_bits:
+        for bit in reg2_bits:
             AB2.value(int(bit))     
             CLK2.value(1)           
             CLK2.value(0)
@@ -108,7 +108,7 @@ def actualizar_maqueta(letra):
         #si la letra no existe: se limpia la maqueta
         # se envian los 8 ceros a los dos registros
         for _ in range(8):
-            AB1(0); CLK1(1); CLK1(0)
+            AB(0); CLK(1); CLK(0)
             AB2(0); CLK2(1); CLK2(0)
         # Apaga las filas poniendo los pines en 1 (reposo).
         led14.value(1); led15.value(1); led16.value(1)
@@ -169,7 +169,7 @@ def iniciar_sistema():
         
         #Llamada a la animación de inicio()
         animacion_deinicio()
-        print("Maqueta preparada, esperando Stranger Morse!)
+        print("Maqueta preparada, esperando Stranger Morse!")
         
         codigo_acumulado = "" # Aquí guardamos los . y -
         last_time = time.ticks_ms()# registra tiempo de la ultima actividad
