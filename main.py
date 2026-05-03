@@ -20,7 +20,7 @@ CLK2 = machine.Pin(19, machine.Pin.OUT)#clock va al pin 19 de la raspy
 #Filas de la maqueta
 led14 = machine.Pin(15, machine.Pin.OUT) # GPIO 15, fila 1
 led15 = machine.Pin(14, machine.Pin.OUT) # GPIO 14, fila 2
-led16 = machine.Pin(13, machine.Pin.OUT) # GPIO 13, fila 3
+led16 = machine.Pin(13,machine.Pin.OUT) # GPIO 13, fila 3
 
 # Configuración del Botón (Pin 16) y Buzzer (Pin 17)
 # Se usa PULL_DOWN como requiere el diagrama de la maqueta
@@ -46,56 +46,56 @@ MORSE_DICC = {
 #Cada "C" se refiere a un led que representa una columna
 #Registro1:[C1, C2, C3, C4, 0, C6, C7, C8] el 0 en los 8 bits es el pin 10 (Q4) muerto
 #Registro2:[ 0, C10, C11, C12,  0, C13, C9, C5] -> El 0 inicial es el Pin 3 muerto, el 2do 0 es el Pin 10.
-
 PATRONES_LEDMAQUE = { 
     # Formato: 'LETRA': (Bits_Reg1, Bits_Reg2, Fila1, Fila2, Fila3)
-    # Recordar: En las filas 0=ON, 1=OFF. 
-    # --- FILA 1 (Letras de arriba) ---
-    'A': ('10000000', '00000000', 0, 1, 1), # C1
-    'C': ('01000000', '00000000', 0, 1, 1), # C2
-    'E': ('00000000', '00000001', 0, 1, 1), # C5 (Reg2 Pin 13)
-    'G': ('00010000', '00000000', 0, 1, 1), # C4
-    'I': ('00000000', '00000010', 0, 1, 1), # C9 (Reg2 Pin 12)
-    'K': ('00000000', '00100000', 0, 1, 1), # C11 (Reg2 Pin 14)
-    'M': ('00000000', '00000100', 0, 1, 1), # C13 (Reg2 Pin 11)
-    'O': ('00000001', '00000000', 0, 1, 1), # C8
-    'Q': ('00000000', '00000100', 0, 1, 1), # C13 (Ajustar según cableado real)
-    'S': ('00000000', '01000000', 0, 1, 1), # C10 (Reg2 Pin 6)
-    'U': ('00000000', '00100000', 0, 1, 1), # C11
-    'W': ('00000000', '00010000', 0, 1, 1), # C12 (Reg2 Pin 7)
-    'Y': ('00000000', '00000100', 0, 1, 1), # C13
+    # Siguiendo la lógica de prueba1.py: El primer bit de la cadena es el índice [0]
+    
+    # --- FILA 1 (Fila1=0) ---
+    'A': ('10000000', '00000000', 1, 0, 0), # Col 1 (Pin 3 Reg 1)
+    'C': ('01000000', '00000000', 1, 0, 0), # Col 2 (Pin 4 Reg 1)
+    'E': ('00100000', '00000000', 1, 0, 0), # Col 3 (Pin 5 Reg 1)
+    'G': ('00010000', '00000000', 1, 0, 0), # Col 4 (Pin 6 Reg 1)
+    'I': ('00000000', '00000001', 1, 0, 0), # Col 5 (Pin 13 Reg 2)
+    'K': ('00000000', '00010000', 1, 0, 0), # Col 6 (Pin 11 Reg 2 -> Q3)
+    'M': ('00000000', '00001000', 1, 0, 0), # Col 7 (Pin 12 Reg 2 -> Q4)
+    'O': ('00000100', '00000000', 1, 0, 0), # Col 8 (Pin 13 Reg 1 -> Q5)
+    'Q': ('00000000', '00001000', 1, 0, 0), # Col 9 (Pin 12 Reg 2)
+    'S': ('00000000', '01000000', 1, 0, 0), # Col 10 (Pin 4 Reg 2)
+    'U': ('00000000', '00100000', 1, 0, 0), # Col 11 (Pin 5 Reg 2)
+    'W': ('00000000', '00010000', 1, 0, 0), # Col 12 (Pin 6 Reg 2)
+    'Y': ('00000000', '00010000', 1, 0, 0), # Col 13 (Pin 11 Reg 2)
 
-    # --- FILA 2 (Letras del medio) ---
-    'B': ('10000000', '00000000', 1, 0, 1), # C1
-    'D': ('01000000', '00000000', 1, 0, 1), # C2
-    'F': ('00000100', '00000000', 1, 0, 1), # C6 (Salto el Pin 10 muerto)
-    'H': ('00000001', '00000000', 1, 0, 1), # C8
-    'J': ('00000000', '01000000', 1, 0, 1), # C10
-    'L': ('00000000', '00010000', 1, 0, 1), # C12
-    'N': ('00000010', '00000000', 1, 0, 1), # C7
-    'P': ('00000001', '00000000', 1, 0, 1), # C8
-    'R': ('00000000', '00000100', 1, 0, 1), # C9
-    'T': ('00000000', '01000000', 1, 0, 1), # C10
-    'V': ('00000000', '00100000', 1, 0, 1), # C11
-    'X': ('00000000', '00010000', 1, 0, 1), # C12
-    'Z': ('00000000', '00000100', 1, 0, 1), # C13
+    # --- FILA 2 (Fila2=0) ---
+    'B': ('10000000', '00000000', 0, 1, 0), # Col 1
+    'D': ('01000000', '00000000', 0, 1, 0), # Col 2
+    'F': ('00100000', '00000000', 0, 1, 0), # Col 3
+    'H': ('00010000', '00000000', 0, 1, 0), # Col 4
+    'J': ('00000000', '00000001', 0, 1, 0), # Col 5
+    'L': ('00000000', '00010000', 0, 1, 0), # Col 6
+    'N': ('00000000', '00001000', 0, 1, 0), # Col 7
+    'P': ('00000100', '00000000', 0, 1, 0), # Col 8
+    'R': ('00000000', '00001000', 0, 1, 0), # Col 9
+    'T': ('00000000', '01000000', 0, 1, 0), # Col 10
+    'V': ('00000000', '00100000', 0, 1, 0), # Col 11
+    'X': ('00000000', '00010000', 0, 1, 0), # Col 12
+    'Z': ('00000000', '00010000', 0, 1, 0), # Col 13
 
-    # --- FILA 3 (Números y Símbolos) ---
-    '0': ('10000000', '00000000', 1, 1, 0), # C1
-    '1': ('01000000', '00000000', 1, 1, 0), # C2
-    '2': ('00100000', '00000000', 1, 1, 0), # C3
-    '3': ('00010000', '00000000', 1, 1, 0), # C4
-    '4': ('00000000', '00000001', 1, 1, 0), # C5
-    '5': ('00000100', '00000000', 1, 1, 0), # C6
-    '6': ('00000010', '00000000', 1, 1, 0), # C7
-    '7': ('00000001', '00000000', 1, 1, 0), # C8
-    '8': ('00000000', '00000010', 1, 1, 0), # C9
-    '9': ('00000000', '01000000', 1, 1, 0), # C10
-    '-': ('00000000', '00100000', 1, 1, 0), # C11
-    '+': ('00000000', '00010000', 1, 1, 0), # C12
+    # --- FILA 3 (Fila3=0) ---
+    '0': ('10000000', '00000000', 0, 0, 1), # Col 1
+    '1': ('01000000', '00000000', 0, 0, 1), # Col 2
+    '2': ('00100000', '00000000', 0, 0, 1), # Col 3
+    '3': ('00010000', '00000000', 0, 0, 1), # Col 4
+    '4': ('00000000', '00010000', 0, 0, 1), # Col 6
+    '5': ('00000000', '00010000', 0, 0, 1), 
+    '6': ('00000000', '00001000', 0, 0, 1), 
+    '7': ('00000000', '00000001', 0, 0, 1), 
+    '8': ('00000000', '00001000', 0, 0, 1), 
+    '9': ('00000000', '01000000', 0, 0, 1), 
+    '-': ('00000000', '00100000', 0, 0, 1), 
+    '+': ('00000000', '00010000', 0, 0, 1),
 
-    'LIMPIAR': ('00000000', '00000000', 1, 1, 1),
-    'O_ANM': ('11111111', '11111111', 0, 0, 0) # Para la animación de inicio
+    'LIMPIAR': ('00000000', '00000000', 0, 0, 0),
+    'O_ANM': ('11111111', '11111111', 1, 1, 1)
 }
 
 
@@ -106,14 +106,16 @@ def actualizar_maqueta(letra):
         reg1_bits, reg2_bits, l1, l2, l3 = PATRONES_LEDMAQUE[letra]
         #Registro 1 (leds de las columnas 1-8 excluyendo la 5)
         #Se recorre la cadena de texto de bits de izquierda a derecha
-        for bit in reg1_bits: 
-            AB.value(int(bit))     # Pone el valor del bit (0 o 1) en el pin de datos
+        for i in range (8):
+            bit = int(reg1_bits[7-i])
+            AB.value(bit)     # Pone el valor del bit (0 o 1) en el pin de datos
             CLK.value(1)           # Genera un pulso de reloj (flanco de subida)
             CLK.value(0)           # Baja el reloj para preparar el siguiente bit
         #Registro 2 (Columnas 5 y 9-13, la nueve al pin 12 y la 5 al pin 13)
         #Se repite la lógica del primero
-        for bit in reg2_bits:
-            AB2.value(int(bit))     
+        for j in range(8):
+            bit = int(reg2_bits[7-j])
+            AB2.value(bit)     
             CLK2.value(1)           
             CLK2.value(0)
             
@@ -130,7 +132,7 @@ def actualizar_maqueta(letra):
             AB(0); CLK(1); CLK(0)
             AB2(0); CLK2(1); CLK2(0)
         # Apaga las filas poniendo los pines en 1 (reposo).
-        led14.value(1); led15.value(1); led16.value(1)
+        led14.value(0); led15.value(0); led16.value(0)
       
 
 def sonar_buzzer(estado):
