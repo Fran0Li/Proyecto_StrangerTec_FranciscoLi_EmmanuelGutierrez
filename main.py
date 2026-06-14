@@ -27,6 +27,16 @@ led16 = machine.Pin(13,machine.Pin.OUT) # GPIO 13, fila 3
 boton = machine.Pin(16, machine.Pin.IN, machine.Pin.PULL_DOWN)#el botón va al pin 16 de la raspy
 buzzer = machine.PWM(machine.Pin(5))#buzzer va al pin 5 de la raspy con PWM
 
+# PROYECTO II: Pines del circuito incrementador en 5 
+# Salidas hacia las entradas A, B, C, D del circuito físico (nibble)
+pin_A = machine.Pin(21, machine.Pin.OUT)  # bit más significativo (MSB)
+pin_B = machine.Pin(22, machine.Pin.OUT)
+pin_C = machine.Pin(26, machine.Pin.OUT)
+pin_D = machine.Pin(27, machine.Pin.OUT)  # bit menos significativo (LSB)
+
+# Switch de activación del circuito incrementador (con pull-down interno)
+switch_incrementador = machine.Pin(28, machine.Pin.IN, machine.Pin.PULL_DOWN)
+
 
 #Diccionarios de traducción
 #Traductor de Morse a texto
@@ -56,14 +66,14 @@ PATRONES_LEDMAQUE = {
     'E': ('00100000', '00000000', 1, 0, 0), # Col 3 (Pin 5 Reg 1)
     'G': ('00010000', '00000000', 1, 0, 0), # Col 4 (Pin 6 Reg 1)
     'I': ('00000000', '00000001', 1, 0, 0), # Col 5 (Pin 13 Reg 2)
-    'K': ('00000000', '00010000', 1, 0, 0), # Col 6 (Pin 11 Reg 2 -> Q3)
-    'M': ('00000000', '00001000', 1, 0, 0), # Col 7 (Pin 12 Reg 2 -> Q4)
-    'O': ('00000100', '00000000', 1, 0, 0), # Col 8 (Pin 13 Reg 1 -> Q5)
-    'Q': ('00000000', '00001000', 1, 0, 0), # Col 9 (Pin 12 Reg 2)
+    'K': ('00000100', '00000000', 1, 0, 0), # Col 6 (Pin 11 Reg 2 -> Q3)
+    'M': ('00000010', '00000000', 1, 0, 0), # Col 7 (Pin 12 Reg 2 -> Q4)
+    'O': ('00000001', '00000000', 1, 0, 0), # Col 8 (Pin 13 Reg 1 -> Q5)
+    'Q': ('00000000', '00000010', 1, 0, 0), # Col 9 (Pin 12 Reg 2)
     'S': ('00000000', '01000000', 1, 0, 0), # Col 10 (Pin 4 Reg 2)
     'U': ('00000000', '00100000', 1, 0, 0), # Col 11 (Pin 5 Reg 2)
     'W': ('00000000', '00010000', 1, 0, 0), # Col 12 (Pin 6 Reg 2)
-    'Y': ('00000000', '00010000', 1, 0, 0), # Col 13 (Pin 11 Reg 2)
+    'Y': ('00000000', '00000100', 1, 0, 0), # Col 13 (Pin 11 Reg 2)
 
     # --- FILA 2 (Fila2=0) ---
     'B': ('10000000', '00000000', 0, 1, 0), # Col 1
@@ -71,25 +81,25 @@ PATRONES_LEDMAQUE = {
     'F': ('00100000', '00000000', 0, 1, 0), # Col 3
     'H': ('00010000', '00000000', 0, 1, 0), # Col 4
     'J': ('00000000', '00000001', 0, 1, 0), # Col 5
-    'L': ('00000000', '00010000', 0, 1, 0), # Col 6
-    'N': ('00000000', '00001000', 0, 1, 0), # Col 7
-    'P': ('00000100', '00000000', 0, 1, 0), # Col 8
-    'R': ('00000000', '00001000', 0, 1, 0), # Col 9
+    'L': ('00000100', '00000000', 0, 1, 0), # Col 6
+    'N': ('00000010', '00000000', 0, 1, 0), # Col 7
+    'P': ('00000001', '00000000', 0, 1, 0), # Col 8
+    'R': ('00000000', '00000010', 0, 1, 0), # Col 9
     'T': ('00000000', '01000000', 0, 1, 0), # Col 10
     'V': ('00000000', '00100000', 0, 1, 0), # Col 11
     'X': ('00000000', '00010000', 0, 1, 0), # Col 12
-    'Z': ('00000000', '00010000', 0, 1, 0), # Col 13
+    'Z': ('00000000', '00000100', 0, 1, 0), # Col 13
 
     # --- FILA 3 (Fila3=0) ---
     '0': ('10000000', '00000000', 0, 0, 1), # Col 1
     '1': ('01000000', '00000000', 0, 0, 1), # Col 2
     '2': ('00100000', '00000000', 0, 0, 1), # Col 3
     '3': ('00010000', '00000000', 0, 0, 1), # Col 4
-    '4': ('00000000', '00010000', 0, 0, 1), # Col 6
-    '5': ('00000000', '00010000', 0, 0, 1), 
-    '6': ('00000000', '00001000', 0, 0, 1), 
-    '7': ('00000000', '00000001', 0, 0, 1), 
-    '8': ('00000000', '00001000', 0, 0, 1), 
+    '4': ('00000000', '00010000', 0, 0, 1), # Col 5
+    '5': ('00000100', '00000000', 0, 0, 1), # Col 6
+    '6': ('00000010', '00000000', 0, 0, 1), 
+    '7': ('00000001', '00000000', 0, 0, 1), 
+    '8': ('00000000', '00000010', 0, 0, 1), 
     '9': ('00000000', '01000000', 0, 0, 1), 
     '-': ('00000000', '00100000', 0, 0, 1), 
     '+': ('00000000', '00010000', 0, 0, 1),
@@ -142,24 +152,48 @@ def sonar_buzzer(estado):
         buzzer.duty_u16(32768) # 50% de potencia de volumen
     else:
         buzzer.duty_u16(0) # apaga el sonido
+        
+def enviar_nibble_incrementador(letra):
+    """
+    Toma el código ASCII de la letra detectada, extrae los 4 bits
+    menos significativos (nibble) y los envía a los pines A,B,C,D
+    que alimentan el circuito incrementador en 5 (hardware físico).
+    También calcula el resultado +5 en software (módulo 16) para
+    poder compararlo con lo que muestran los LEDs físicos.
+    Retorna el resultado en binario de 4 bits como string "WXYZ".
+    """
+    ascii_val = ord(letra)
+    nibble = ascii_val & 0x0F  # 4 bits menos significativos del ASCII
+
+    # Enviar cada bit al pin correspondiente (A=MSB ... D=LSB)
+    pin_A.value((nibble >> 3) & 1)
+    pin_B.value((nibble >> 2) & 1)
+    pin_C.value((nibble >> 1) & 1)
+    pin_D.value(nibble & 1)
+
+    # Cálculo en software del resultado +5 (mod 16) para mostrar en pantalla
+    resultado = (nibble + 5) % 16
+    resultado_bin = format(resultado, '04b')  # ej: "0110" -> W X Y Z
+    return resultado_bin
 
 # FUNCIONES RASPYCONNECTION
 
 ssid = "FranLi"  #nombre de la red
-password = "RackitiLi081029" #contraseña de la red
+password = "Lrf291424" #contraseña de la red
 
 def connectToWifi():
     try:
         wlan = network.WLAN(network.STA_IF) #crea la interfaz para la conexión
         wlan.active(True) #wnciende antena
+        wlan.config(pm = 0xa11140)#Evita que el WiFi se "duerma" por falta de energía de la batería
         wlan.connect(ssid, password) #intenta conexión
         while wlan.isconnected() == False: 
             print('Esperando la conexion...')#espera activa hasta confirmas conexion
             sleep(1)
         picoIp = wlan.ifconfig()[0] #obtiene la ip asignada a la raspy
         print('Conectado exitosamente a la ip: ' + str(picoIp))
-    except:
-        print('Algo salio mal. Intente nuevamente')
+    except Exception as e:
+        print('Algo salio mal. Intente nuevamente', e)
 
 
 
@@ -183,7 +217,7 @@ def iniciar_sistema():
     connectToWifi()
     
     # 2. Configuración del servidor (IP de ServerR.py en Visual)
-    server_address = ('10.210.86.206', 8001) 
+    server_address = ('10.192.247.206', 8001) 
     
     try:
         # Creamos el socket una sola vez para mantener la conexión abierta
@@ -191,6 +225,7 @@ def iniciar_sistema():
         print("Creando socket...")
         client_socket.connect(server_address)
         print("Conectado al servidor en Visual Studio")
+        client_socket.settimeout(0.1) # Para que también pusa escuchar
         
         #Llamada a la animación de inicio()
         animacion_deinicio()
@@ -200,9 +235,41 @@ def iniciar_sistema():
         #Resetear last_time antes del bucle
         last_time = time.ticks_ms()# registra tiempo de la ultima actividad
         espacio_enviado = True
+        estado_switch_anterior = -1 #fuerza el primer envío del estado
         print("Esperando entrada Morse (Botón)...")
+
         
         while True:
+            #Sección para escuchar al PC
+            try:
+                # Intenta recibir la frase de la interfaz (PC)
+                datos = client_socket.recv(1024).decode().strip()
+                if datos:
+                    print("Frase recibida de PC:", datos)
+                    # Recorremos cada letra de la palabra recibida
+                    for caracter in datos.upper():
+                        if caracter in PATRONES_LEDMAQUE:
+                            actualizar_maqueta(caracter) # Enciende el LED
+                            sonar_buzzer(True)           # Suena el buzzer
+                            sleep(0.5)                   # Tiempo que queda encendido
+                            actualizar_maqueta('LIMPIAR')# Apaga
+                            sonar_buzzer(False)
+                            sleep(0.2)                   # Pausa entre letras
+            except:
+                # Si no hay datos de la PC, simplemente sigue adelante sin trabarse
+                pass
+            
+            # Proyecto II: Verificación del switch de activación
+            estado_switch_actual = switch_incrementador.value()
+            if estado_switch_actual != estado_switch_anterior:
+                if estado_switch_actual == 1:
+                    client_socket.sendall("[SW:ON]".encode())
+                else:
+                    client_socket.sendall("[SW:OFF]".encode())
+                    # Al desactivar, apagamos las salidas del circuito
+                    pin_A.value(0); pin_B.value(0); pin_C.value(0); pin_D.value(0)
+                estado_switch_anterior = estado_switch_actual
+                
             # Detección del botón
             if boton.value() == 1:# si el botón esta presionado
                 inicio_pulso = time.ticks_ms()#marca el inicio del pulso
@@ -238,6 +305,12 @@ def iniciar_sistema():
                 #Se llama a la maqueta
                 actualizar_maqueta(letra) #Va a  la maqueta(leds), a la función que apaga/enciende filas
                 client_socket.sendall(f"[{letra}]".encode())#envía letra entre llaves al server
+                
+                #  PROYECTO II: Si el switch está activo, alimenta el circuito incrementador ---
+                if switch_incrementador.value() == 1 and letra != "?":
+                    resultado_bin = enviar_nibble_incrementador(letra)
+                    client_socket.sendall(f"[INC:{resultado_bin}]".encode())
+                
                 codigo_acumulado = "" #Se limpia la variable para escribir la siguiente letra
             #Silencio de 3s es un espacio/ final de palabra
             if time_out > 3000 and not espacio_enviado:

@@ -11,7 +11,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PATH_IMAGEN = os.path.join(BASE_DIR, "st2.jpg")
 
-IP_SERVER = '10.210.86.206' 
+IP_SERVER = '10.192.247.206' 
 PUERTO = 8001
 SERVER_ADDRESS = (IP_SERVER, PUERTO)
 
@@ -25,7 +25,7 @@ MORSE_DICT = {
     '9': '----.', '0': '-----', '+': '.-.-.', '-': '-....-'
 }
 
-PALABRAS = ["SOS", "SI", "NO", "TEC", "PYTHON", "PICO W", "COMPUTADORES", "C++"]
+PALABRAS = ["SOS", "SOS", "SOS", "SOS", "SOS", "SOS", "SOS", "SOS"]
 score_p1, score_p2, ronda_actual = 0, 0, 1
 frase_objetivo = ""
 cliente_maqueta = None
@@ -134,6 +134,12 @@ def ventana_juego(modo_nombre):
         cv.create_text(400, 75, text=txt, fill="white", font=("Courier", 30, "bold"), tags="display")
 
     actualizar_pantalla()
+    lbl_incremento = tk.Label(f_derecho, text="Circuito +5: esperando...",font=("Courier",14),bg="#0a0a0a",fg="yellow")
+    lbl_incremento.pack(pady=5)
+
+    lbl_switch = tk.Label(f_derecho,text="● Circuito OFF",font= ("Courier",14),bg="#0a0a0a",fg="red")
+    lbl_switch.pack()
+
     ent_text = tk.Entry(f_derecho, font=("Courier", 22), bg="#151515", fg="cyan", justify="center")
     ent_text.pack(fill="x", pady=5, padx=50)
 
@@ -150,9 +156,18 @@ def ventana_juego(modo_nombre):
 
     def recibir_maqueta(msj):
         """Traduce la señal de red a texto en pantalla"""
-        if msj.startswith("[") and msj.endswith("]"):
-            ent_text.insert(tk.END, msj[1:-1])
-        elif msj == " ": ent_text.insert(tk.END, " ")
+        if msj.startswith("[INC:"):
+         valor = msj[5:-1]
+         lbl_incremento.config(text=f"Circuito +5: {valor}")
+        elif msj == "[SW:ON]":
+         lbl_switch.config(text="● Circuito ON", fg="green")
+        elif msj == "[SW:OFF]":
+         lbl_switch.config(text="● Circuito OFF", fg="red")
+        elif msj.startswith("[") and msj.endswith("]"):
+         ent_text.insert(tk.END, msj[1:-1])
+        elif msj == " ": 
+         ent_text.insert(tk.END, " ")
+
 
     # Inicia comunicación con Raspberry
     threading.Thread(target=servidor_hilo, args=(recibir_maqueta,), daemon=True).start()
