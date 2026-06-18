@@ -173,7 +173,11 @@ def enviar_nibble_incrementador(letra):
 
     # Cálculo en software del resultado +5 (mod 16) para mostrar en pantalla
     resultado = (nibble + 5) % 16
-    resultado_bin = format(resultado, '04b')  # ej: "0110" -> W X Y Z
+    #Conversion manual a binario de 4 bits
+    resultado_bin = " "
+    for i in range(3, -1, -1):
+        bit = (resultado >> i) & 1
+        resultado_bin += str(bit)
     return resultado_bin
 
 # FUNCIONES RASPYCONNECTION
@@ -217,7 +221,7 @@ def iniciar_sistema():
     connectToWifi()
     
     # 2. Configuración del servidor (IP de ServerR.py en Visual)
-    server_address = ('10.192.247.206', 8001) 
+    server_address = ('10.247.54.206', 8001) 
     
     try:
         # Creamos el socket una sola vez para mantener la conexión abierta
@@ -267,7 +271,7 @@ def iniciar_sistema():
                 else:
                     client_socket.sendall("[SW:OFF]".encode())
                     # Al desactivar, apagamos las salidas del circuito
-                    pin_A.value(0); pin_B.value(0); pin_C.value(0); pin_D.value(0)
+                    pin_A.value(1); pin_B.value(0); pin_C.value(1); pin_D.value(1)
                 estado_switch_anterior = estado_switch_actual
                 
             # Detección del botón

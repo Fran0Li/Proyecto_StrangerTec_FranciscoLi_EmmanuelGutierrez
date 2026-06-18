@@ -25,7 +25,21 @@ MORSE_DICT = {
     '9': '----.', '0': '-----', '+': '.-.-.', '-': '-....-'
 }
 
-PALABRAS = ["SOS", "NO", "SI", "SOS", "TEC", "29", "SOS", "SOS"]
+# Diccionario inverso: código morse → carácter
+MORSE_INVERSO = {v: k for k, v in MORSE_DICT.items()}
+
+def morse_a_ascii(codigo_morse):
+    """Convierte un código morse a su representación ASCII en binario de 8 bits."""
+    char = MORSE_INVERSO.get(codigo_morse.strip())
+    if char:
+        ascii_val = ord(char)
+        binario = format(ascii_val, '08b')
+        # Formato visual: 0100 0001
+        binario_fmt = binario[:4] + ' ' + binario[4:]
+        return char, ascii_val, binario_fmt
+    return None, None, None
+
+PALABRAS = ["SOS", "SOS", "SOS", "SOS", "SOS", "SOS", "SOS", "SOS"]
 score_p1, score_p2, ronda_actual = 0, 0, 1
 frase_objetivo = ""
 cliente_maqueta = None
@@ -116,10 +130,43 @@ def ventana_juego(modo_nombre):
     lbl_ronda = tk.Label(f_info, text=f"RONDA: {ronda_actual}/3", bg="#111", fg="yellow", font=("Arial", 14, "bold"))
     lbl_ronda.pack(pady=20)
     
-    txt_morse = tk.Text(f_info, bg="#111", fg="white", font=("Courier", 9), width=20, height=30, bd=0)
+    txt_morse = tk.Text(f_info, bg="#111", fg="white", font=("Courier", 9), width=20, height=18, bd=0)
     txt_morse.pack(pady=5)
     for char, code in sorted(MORSE_DICT.items()): txt_morse.insert(tk.END, f"{char}: {code}\n")
     txt_morse.config(state=tk.DISABLED)
+
+    # --- Panel de decodificación Morse → ASCII ---
+    tk.Label(f_info, text="─── MORSE → ASCII ───", bg="#111", fg="#ff4444",
+             font=("Courier", 8, "bold")).pack(pady=(10, 2))
+
+    lbl_morse_in = tk.Label(f_info, text="Señal: ---", bg="#111", fg="#aaaaaa",
+                            font=("Courier", 9))
+    lbl_morse_in.pack()
+
+    lbl_char_decoded = tk.Label(f_info, text="?", bg="#111", fg="#00ff99",
+                                font=("Courier", 28, "bold"))
+    lbl_char_decoded.pack(pady=2)
+
+    lbl_ascii_dec = tk.Label(f_info, text="DEC: ---", bg="#111", fg="#ffaa00",
+                             font=("Courier", 9))
+    lbl_ascii_dec.pack()
+
+    lbl_ascii_bin = tk.Label(f_info, text="BIN: ---- ----", bg="#111", fg="#00ccff",
+                             font=("Courier", 10, "bold"))
+    lbl_ascii_bin.pack(pady=(0, 10))
+
+    def actualizar_panel_ascii(codigo_morse):
+        """Actualiza el panel con la decodificación del código morse recibido."""
+        char, dec, binario = morse_a_ascii(codigo_morse)
+        lbl_morse_in.config(text=f"Señal: {codigo_morse.strip()}")
+        if char:
+            lbl_char_decoded.config(text=char)
+            lbl_ascii_dec.config(text=f"DEC: {dec}")
+            lbl_ascii_bin.config(text=f"BIN: {binario}")
+        else:
+            lbl_char_decoded.config(text="?")
+            lbl_ascii_dec.config(text="DEC: ---")
+            lbl_ascii_bin.config(text="BIN: ---- ----")
 
     # Área de Juego
     f_derecho = tk.Frame(v_j, bg="#0a0a0a")
@@ -157,16 +204,25 @@ def ventana_juego(modo_nombre):
     def recibir_maqueta(msj):
         """Traduce la señal de red a texto en pantalla"""
         if msj.startswith("[INC:"):
-         valor = msj[5:-1]
-         lbl_incremento.config(text=f"Circuito +5: {valor}")
+            valor = msj[5:-1]
+            lbl_incremento.config(text=f"Circuito +5: {valor}")
         elif msj == "[SW:ON]":
-         lbl_switch.config(text="● Circuito ON", fg="green")
+            lbl_switch.config(text="● Circuito ON", fg="green")
         elif msj == "[SW:OFF]":
-         lbl_switch.config(text="● Circuito OFF", fg="red")
+            lbl_switch.config(text="● Circuito OFF", fg="red")
+        elif msj.startswith("[MORSE:") and msj.endswith("]"):
+            # Formato esperado: [MORSE:.-] para recibir código morse directamente
+            codigo = msj[7:-1]
+            actualizar_panel_ascii(codigo)
         elif msj.startswith("[") and msj.endswith("]"):
-         ent_text.insert(tk.END, msj[1:-1])
-        elif msj == " ": 
-         ent_text.insert(tk.END, " ")
+            char_recibido = msj[1:-1]
+            ent_text.insert(tk.END, char_recibido)
+            # Buscar el código morse del carácter recibido y actualizar panel
+            codigo_morse = MORSE_DICT.get(char_recibido.upper(), "")
+            if codigo_morse:
+                actualizar_panel_ascii(codigo_morse)
+        elif msj == " ":
+            ent_text.insert(tk.END, " ")
 
 
     # Inicia comunicación con Raspberry
