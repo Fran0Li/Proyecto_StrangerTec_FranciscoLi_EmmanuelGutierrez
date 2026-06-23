@@ -11,8 +11,11 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PATH_IMAGEN = os.path.join(BASE_DIR, "st2.jpg")
 
-IP_SERVER = '10.11.74.206' 
+IP_SERVER = '10.204.191.100' 
 PUERTO = 8001
+
+
+
 SERVER_ADDRESS = (IP_SERVER, PUERTO)
 
 MORSE_DICT = {
